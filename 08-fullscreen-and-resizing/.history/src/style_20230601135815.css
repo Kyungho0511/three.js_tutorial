@@ -1,0 +1,8 @@
+* {
+  box-sizing: border-box;
+}
+
+.webgl {
+  width: 100%;
+  height: vh;
+}
