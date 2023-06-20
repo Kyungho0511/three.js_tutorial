@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
 /**
  * Base
@@ -13,6 +15,32 @@ const canvas = document.querySelector('canvas.webgl')
 
 // Scene
 const scene = new THREE.Scene()
+
+/**
+ * Models
+ */
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/draco/');
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
+// gltfLoader.load('/models/FlightHelmet/glTF/FlightHelmet.gltf', meshLoader);
+// gltfLoader.load('/models/Duck/glTF-Draco/Duck.gltf', meshLoader);
+gltfLoader.load('/models/Fox/glTF/Fox.gltf', gltf => meshLoader(gltf, 0.025));
+
+let mixer = null;
+function meshLoader(gltf, scale) { // scale? : float
+    // add child mesh backward! gltf.scene.children[i] is removed as it is added to my scene
+    mixer = new THREE.AnimationMixer(gltf.scene);
+    const action = mixer.clipAction(gltf.animations[0]);
+    action.play();
+
+    for (let i = gltf.scene.children.length - 1; i >= 0; i--) {
+        scale && gltf.scene.children[i].scale.set(scale, scale, scale);
+        scene.add(gltf.scene.children[i]);
+    }
+}
 
 /**
  * Floor
@@ -104,6 +132,9 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - previousTime
     previousTime = elapsedTime
+
+    // Update mixer
+    mixer && mixer.update(deltaTime);
 
     // Update controls
     controls.update()
