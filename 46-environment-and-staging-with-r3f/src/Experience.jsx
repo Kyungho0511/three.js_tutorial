@@ -53,15 +53,15 @@ export default function Experience() {
       <OrbitControls makeDefault />
 
       <Environment
-        // background
-        preset="sunset"
+        background
+        // preset="sunset"
         ground={{
           height: envMapHeight,
           radius: envMapRadius,
           scale: envMapScale,
         }}
         // resolution={32}
-        // files={"./environmentMaps/the_sky_is_on_fire_2k.hdr"}
+        files={"./environmentMaps/the_sky_is_on_fire_2k.hdr"}
         // files={[
         //   "./environmentMaps/2/px.jpg",
         //   "./environmentMaps/2/nx.jpg",
