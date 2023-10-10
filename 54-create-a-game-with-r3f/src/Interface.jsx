@@ -1,11 +1,9 @@
 import { useKeyboardControls } from "@react-three/drei";
 
 export default function Interface() {
-  const forward = useKeyboardControls((state) => state.forward);
-  const backward = useKeyboardControls((state) => state.backward);
-  const left = useKeyboardControls((state) => state.left);
-  const right = useKeyboardControls((state) => state.right);
-  const jump = useKeyboardControls((state) => state.jump);
+  const { forward, backward, left, right, jump } = useKeyboardControls(
+    (state) => state
+  );
 
   return (
     <div className="interface">

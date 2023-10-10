@@ -3,6 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { RigidBody, useRapier } from "@react-three/rapier";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import useGame from "./stores/useGame";
 
 export default function Player() {
   const body = useRef();
@@ -10,6 +11,7 @@ export default function Player() {
   const { rapier, world } = useRapier();
   const [smoothCameraPosition] = useState(() => new THREE.Vector3(10, 10, 10));
   const [smoothCameraTarget] = useState(() => new THREE.Vector3());
+  const { start, end, restart, blocksCount } = useGame((state) => state);
 
   const jump = () => {
     const origin = body.current.translation();
@@ -23,14 +25,30 @@ export default function Player() {
     }
   };
 
+  const reset = () => {
+    console.log("reset");
+  };
+
   useEffect(() => {
+    useGame.subscribe(
+      (state) => state.phase,
+      (value) => {
+        console.log("phase changed to ", value);
+      }
+    );
+
     const unsubscribeJump = subscribeKeys(
       (state) => state.jump,
       (value) => value && jump()
     );
 
+    const unsubscribeAny = subscribeKeys(() => {
+      start();
+    });
+
     return () => {
       unsubscribeJump();
+      unsubscribeAny();
     };
   }, []);
 
@@ -79,6 +97,16 @@ export default function Player() {
 
     state.camera.position.copy(smoothCameraPosition);
     state.camera.lookAt(smoothCameraTarget);
+
+    /**
+     * Phases
+     */
+    if (bodyPosition.z < -(blocksCount * 4 + 2)) {
+      end();
+    }
+    if (bodyPosition.y < -4) {
+      restart();
+    }
   });
 
   return (
