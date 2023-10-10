@@ -11,7 +11,10 @@ export default function Player() {
   const { rapier, world } = useRapier();
   const [smoothCameraPosition] = useState(() => new THREE.Vector3(10, 10, 10));
   const [smoothCameraTarget] = useState(() => new THREE.Vector3());
-  const { start, end, restart, blocksCount } = useGame((state) => state);
+  const start = useGame((state) => state.start);
+  const end = useGame((state) => state.end);
+  const restart = useGame((state) => state.restart);
+  const blocksCount = useGame((state) => state.blocksCount);
 
   const jump = () => {
     const origin = body.current.translation();
@@ -26,14 +29,18 @@ export default function Player() {
   };
 
   const reset = () => {
-    console.log("reset");
+    body.current.setTranslation({ x: 0, y: 1, z: 0 });
+    body.current.setLinvel({ x: 0, y: 0, z: 0 });
+    body.current.setAngvel({ x: 0, y: 0, z: 0 });
   };
 
   useEffect(() => {
-    useGame.subscribe(
+    const unsubscribeReset = useGame.subscribe(
       (state) => state.phase,
       (value) => {
-        console.log("phase changed to ", value);
+        if (value === "ready") {
+          reset();
+        }
       }
     );
 
@@ -47,6 +54,7 @@ export default function Player() {
     });
 
     return () => {
+      unsubscribeReset();
       unsubscribeJump();
       unsubscribeAny();
     };
